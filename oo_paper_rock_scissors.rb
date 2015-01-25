@@ -9,9 +9,9 @@ class Player
     puts 'Enter your selection (R, P, or S)'
     player_pick = gets.chomp.upcase
     while !['R', 'P', 'S'].include? player_pick
-        puts 'Invalid response: Please enter R, P, or S'
-        player_pick = gets.chomp.upcase
-      end
+      puts 'Invalid response: Please enter R, P, or S'
+      player_pick = gets.chomp.upcase
+    end
     print "You chose #{Game::CHOICES[player_pick]} "
     player_pick
   end 
@@ -57,17 +57,17 @@ class Game
   end
 
   def play_again?(player1, computer1)
-      puts "Would you like to play another game? (Y or N)"
+    puts "Would you like to play another game? (Y or N)"
+    replay = gets.chomp.upcase
+    while !['Y', 'N'].include? replay
+      puts 'Invalid response: Would you like to play again? Y or N'
       replay = gets.chomp.upcase
-      while !['Y', 'N'].include? replay
-        puts 'Invalid response: Would you like to play again? Y or N'
-        replay = gets.chomp.upcase
-      end
-      if replay == 'N'
-        puts "Thanks for playing. See you next time."
-      elsif replay == 'Y'
-        Game.new.play(player1, computer1)
-      end
+    end
+    if replay == 'N'
+      puts "Thanks for playing. See you next time."
+    elsif replay == 'Y'
+      Game.new.play(player1, computer1)
+    end
   end
 
   def play(player1, computer1)
