@@ -26,11 +26,7 @@ class Board
 
   def board_filled?(board)
     empty_positions = board.keys.select { |position| board[position] == ' '}
-    if empty_positions == []
-      true
-    else
-      false
-    end
+    return true if empty_positions == []
   end
 
 end
@@ -90,8 +86,6 @@ class Game
     if empty_positions == []
       announce_tie
       return 'tie'
-    else
-      nil
     end
   end
 
