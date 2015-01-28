@@ -33,9 +33,26 @@ class ComputerPlayer < Player
 end
 
 class Card
+  SUITS = ['Clubs', 'Diamaonds', 'Hearts', 'Spades']
+  VALUES = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'Ace']
+
+  def get_card_value
+  end
+
 end
 
-class Deck
+class Deck < Card
+  @@num_decks = 0
+  
+  def initialize
+    @@num_decks += 1
+  end
+
+  def new_deck
+    game_deck = VALUES.product(SUITS)
+    game_deck
+  end
+
 end
 
 class Game
@@ -60,6 +77,8 @@ class Game
 
   def play(player1)
     player1.place_bet
+    game_deck = Deck.new_deck
+    puts game_deck
     play(player1) if play_again == 'Y'
   end
 end
