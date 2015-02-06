@@ -37,12 +37,29 @@ class Player
   end
 
   def show_info
-    system 'clear'
     display_hand
     say_score
+    show_bet
+  end
+
+  def show_bet
+    puts "#{@name}'s bet: $#{bet}."
     puts
   end
 
+   def blackjack?
+    card_array = []
+    hand.each { |card| card_array.push card[0] }
+    if (card_array.length == 2 && card_array.include?('Ace') && \
+       ((card_array.include?('Jack')) || (card_array.include?('Queen')) || \
+        (card_array.include?('King'))))
+      'BLACKJACK!!!'
+    elsif calculate_score == 21
+      'Score of 21!!!'
+    else
+      nil
+    end
+  end
 end
 
 class HumanPlayer < Player
@@ -58,8 +75,26 @@ class HumanPlayer < Player
     puts 'How much would you like to wager this round?'
     @bet = gets.chomp.to_i
     system 'clear'
-    puts "You have bet $#{bet}."
-    puts
+  end
+
+  def display_game_info (player, computer)
+      system 'clear'  
+      puts player.blackjack?
+      computer.show_initial_card
+      player.show_info
+  end
+
+  def win_lose(player)
+    if player.blackjack?
+      puts "#{player.blackjack?} #{player.name} wins."
+      true
+    elsif player.calculate_score > 21
+      puts  "#{player.name} busted."
+      true
+    else
+      nil
+  end
+      
   end
 
   def hit_or_stay(deck, player, computer)
@@ -69,10 +104,9 @@ class HumanPlayer < Player
         hit_or_stay = gets.chomp.upcase 
         puts "Invalid entry. Please try again" if !['S', 'H'].include?(hit_or_stay)
       end until hit_or_stay == 'S' || hit_or_stay == 'H'
-      deck.deal(player.hand) if hit_or_stay == 'H'
-      system 'clear'
-      player.show_info
-      break if hit_or_stay == 'S' 
+        deck.deal(player.hand) if hit_or_stay == 'H' && !player.win_lose(player)
+        player.display_game_info(player, computer)
+      break if hit_or_stay == 'S'|| win_lose(player)
     end
   end
 
@@ -82,10 +116,16 @@ class ComputerPlayer < Player
   def initialize(name)
     super
   end
+
+  def show_initial_card
+    puts "#{name}'s Hand Showing:" 
+    puts "#{@hand[0][0]} of #{@hand[0][1]}"
+    puts
+  end
 end
 
 class Card
-  SUITS = ['Clubs', 'Diamaonds', 'Hearts', 'Spades']
+  SUITS = ['Clubs', 'Diamonds', 'Hearts', 'Spades']
   VALUES = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'Ace']
 
   def get_card_value
@@ -111,13 +151,12 @@ class Deck < Card
   def deal(hand)
     if @@game_deck.length > 0
       hand.push @@game_deck.pop
+
     else
       add_deck
       deal(hand)
     end
   end
-
-
 end
 
 class Game
@@ -141,23 +180,32 @@ class Game
     response
   end
 
-  
+  def say_bye
+    system 'clear'
+    puts "Thanks for playing. See you next time."
+  end
+
+  def reset_hands(player1, computer)
+    player1.hand = []
+    computer.hand = []
+  end
 
   def play(player1, computer)
     system 'clear'
+    reset_hands(player1, computer)
     player1.place_bet
     game_deck = Deck.new
     game_deck.deal(player1.hand)
     game_deck.deal(computer.hand)
-    computer.display_hand
     game_deck.deal(player1.hand)
     game_deck.deal(computer.hand)
+    computer.show_initial_card
     player1.show_info
     player1.hit_or_stay(game_deck, player1, computer)
-
-    
     play(player1, computer) if play_again == 'Y'
   end
 end
 
-Game.new
+blackjack = Game.new
+blackjack.say_bye
+
