@@ -74,12 +74,17 @@ class HumanPlayer < Player
     puts "You have $#{purse} #{name}."
     puts 'How much would you like to wager this round?'
     @bet = gets.chomp.to_i
+    while @bet > @purse
+      puts "You can't bet more than you have. Please re-enter your wager."
+      @bet = gets.chomp.to_i
+    end
+
     system 'clear'
   end
 
   def display_game_info (player, computer)
       system 'clear'  
-      puts player.blackjack?
+      player.blackjack?
       computer.show_initial_card
       player.show_info
   end
@@ -87,9 +92,13 @@ class HumanPlayer < Player
   def win_lose(player)
     if player.blackjack?
       puts "#{player.blackjack?} #{player.name} wins."
+      @purse += @bet
+      puts "You now have #{@purse} total."
       true
     elsif player.calculate_score > 21
-      puts  "#{player.name} busted."
+      puts  "#{player.name} busted. "
+      @purse -= @bet
+      puts "You now have #{@purse} remaining."
       true
     else
       nil
@@ -107,6 +116,11 @@ class HumanPlayer < Player
         deck.deal(player.hand) if hit_or_stay == 'H' && !player.win_lose(player)
         player.display_game_info(player, computer)
       break if hit_or_stay == 'S'|| win_lose(player)
+    end
+    if !win_lose(player)
+      deck.deal(computer.hand) while computer.calculate_score < 17 && \
+        computer.calculate_score < player.calculate_score
+      computer.display_game_info(player, computer)
     end
   end
 
@@ -180,9 +194,16 @@ class Game
     response
   end
 
-  def say_bye
+  def say_bye(player)
     system 'clear'
-    puts "Thanks for playing. See you next time."
+    puts "Thanks for playing."
+    if player.purse > 500
+      puts "You're total winnings are $#{player.purse-500}!"
+    elsif player.purse < 500
+      puts "You lost $#{500 - player.purse}. Better luck next time."
+    else
+      puts "You broke even."
+    end
   end
 
   def reset_hands(player1, computer)
@@ -203,9 +224,9 @@ class Game
     player1.show_info
     player1.hit_or_stay(game_deck, player1, computer)
     play(player1, computer) if play_again == 'Y'
+    say_bye(player1)
   end
 end
 
 blackjack = Game.new
-blackjack.say_bye
 
